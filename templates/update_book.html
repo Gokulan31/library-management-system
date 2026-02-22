@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Update Book/Movie – Library MS{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar">
+    <span class="sidebar-heading">Housekeeping</span>
+    <div class="sidebar-section">
+        <span class="sidebar-link top-level" style="cursor:default;">Membership</span>
+        <a href="{{ url_for('add_membership') }}" class="sidebar-link">Add</a>
+        <a href="{{ url_for('update_membership') }}" class="sidebar-link">Update</a>
+    </div>
+    <div class="sidebar-section">
+        <span class="sidebar-link top-level" style="cursor:default;">Books/Movies</span>
+        <a href="{{ url_for('add_book') }}" class="sidebar-link">Add</a>
+        <a href="{{ url_for('update_book') }}" class="sidebar-link active">Update</a>
+    </div>
+    <div class="sidebar-section">
+        <span class="sidebar-link top-level" style="cursor:default;">User Management</span>
+        <a href="{{ url_for('user_management') }}" class="sidebar-link">Add</a>
+        <a href="{{ url_for('user_management') }}" class="sidebar-link">Update</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="page-title">Update Book/Movie</div>
+
+<!-- Step 1: Fetch the item -->
+<div class="form-section" style="margin-bottom:1.5rem;">
+    <form method="POST" action="{{ url_for('update_book') }}">
+        <input type="hidden" name="action" value="fetch">
+
+        <!-- Radio Button - Book / Movie (per Excel, default Book) -->
+        <div class="form-group">
+            <div class="radio-group">
+                <label class="radio-item">
+                    <input type="radio" name="item_type" value="Book" {% if form.get('item_type', 'Book') == 'Book' %}checked{% endif %}> Book
+                </label>
+                <label class="radio-item">
+                    <input type="radio" name="item_type" value="Movie" {% if form.get('item_type') == 'Movie' %}checked{% endif %}> Movie
+                </label>
+            </div>
+            <div class="field-note">Select one. By default - Book. All fields required to submit the form.</div>
+        </div>
+
+        <!-- Book/Movie Name - Text Box / Drop Down (per Excel) -->
+        <div class="form-group">
+            <label>Book/Movie Name</label>
+            <input list="book-names-list" name="name" class="form-control"
+                   placeholder="Type or select..." value="{{ form.get('name', '') }}">
+            <datalist id="book-names-list">
+                {% for n in book_names %}
+                <option value="{{ n }}">
+                {% endfor %}
+            </datalist>
+        </div>
+
+        <!-- Serial No - Text Box (per Excel) -->
+        <div class="form-group">
+            <label>Serial No</label>
+            <input type="text" name="serial_no" class="form-control"
+                   placeholder="e.g. SC(B)000001" value="{{ form.get('serial_no', '') }}">
+        </div>
+
+        <div class="btn-row">
+            <button type="submit" class="btn btn-primary">Fetch</button>
+        </div>
+    </form>
+</div>
+
+{% if item %}
+<!-- Step 2: Update fields -->
+<div class="form-section">
+    <form method="POST" action="{{ url_for('update_book') }}">
+        <input type="hidden" name="action" value="update">
+        <input type="hidden" name="item_type" value="{{ item['type'] }}">
+        <input type="hidden" name="serial_no" value="{{ item['serial_no'] }}">
+
+        <div class="form-group">
+            <label>Book/Movie Name</label>
+            <input type="text" class="form-control" value="{{ item['name'] }}" readonly>
+        </div>
+
+        <!-- Status - Drop Down (per Excel) -->
+        <div class="form-group">
+            <label>Status <span class="required">*</span></label>
+            <select name="status" class="form-control" required>
+                <option value="">-- Select Status --</option>
+                <option value="Available" {% if item['status'] == 'Available' %}selected{% endif %}>Available</option>
+                <option value="Issued" {% if item['status'] == 'Issued' %}selected{% endif %}>Issued</option>
+                <option value="Lost" {% if item['status'] == 'Lost' %}selected{% endif %}>Lost</option>
+                <option value="Damaged" {% if item['status'] == 'Damaged' %}selected{% endif %}>Damaged</option>
+            </select>
+        </div>
+
+        <!-- Date - Calendar (per Excel) -->
+        <div class="form-group">
+            <label>Date <span class="required">*</span></label>
+            <input type="date" name="date" class="form-control" required value="{{ item['procurement_date'] or '' }}">
+        </div>
+
+        <div class="btn-row">
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a href="{{ url_for('cancel') }}" class="btn btn-cancel">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}{% if session.get('is_admin') %}Admin Home Page{% else %}Home Page{% endif %} – Library MS{% endblock %}
+{% block content %}
+<div class="page-title">{% if session.get('is_admin') %}Admin Home Page{% else %}Home Page{% endif %}</div>
+<!-- Top Navigation per Excel: Maintenance | Reports | Transactions -->
+<div class="home-nav">
+    {% if session.get('is_admin') %}
+    <a href="{{ url_for('maintenance') }}" class="home-nav-btn">Maintenance</a>
+    {% endif %}
+    <a href="{{ url_for('reports') }}" class="home-nav-btn">Reports</a>
+    <a href="{{ url_for('transactions') }}" class="home-nav-btn">Transactions</a>
+</div>
+
+<!-- Product Details table exactly as per Excel -->
+<h3 style="margin-bottom:0.75rem; color:var(--primary); font-size:1rem;">Product Details</h3>
+<div class="product-details-table">
+    <table>
+        <thead>
+            <tr>
+                <th>Code No From</th>
+                <th>Code No To</th>
+                <th>Category</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>SC(B/M)000001</td>
+                <td>SC(B/M)000004</td>
+                <td>Science</td>
+            </tr>
+            <tr>
+                <td>EC(B/M)000001</td>
+                <td>EC(B/M)000004</td>
+                <td>Economics</td>
+            </tr>
+            <tr>
+                <td>FC(B/M)000001</td>
+                <td>FC(B/M)000004</td>
+                <td>Fiction</td>
+            </tr>
+            <tr>
+                <td>CH(B/M)000001</td>
+                <td>CH(B/M)000004</td>
+                <td>Children</td>
+            </tr>
+            <tr>
+                <td>PD(B/M)000001</td>
+                <td>PD(B/M)000004</td>
+                <td>Personal Development</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

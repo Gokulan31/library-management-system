@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Add Book/Movie – Library MS{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar">
+    <span class="sidebar-heading">Housekeeping</span>
+    <div class="sidebar-section">
+        <span class="sidebar-link top-level" style="cursor:default;">Membership</span>
+        <a href="{{ url_for('add_membership') }}" class="sidebar-link">Add</a>
+        <a href="{{ url_for('update_membership') }}" class="sidebar-link">Update</a>
+    </div>
+    <div class="sidebar-section">
+        <span class="sidebar-link top-level" style="cursor:default;">Books/Movies</span>
+        <a href="{{ url_for('add_book') }}" class="sidebar-link active">Add</a>
+        <a href="{{ url_for('update_book') }}" class="sidebar-link">Update</a>
+    </div>
+    <div class="sidebar-section">
+        <span class="sidebar-link top-level" style="cursor:default;">User Management</span>
+        <a href="{{ url_for('user_management') }}" class="sidebar-link">Add</a>
+        <a href="{{ url_for('user_management') }}" class="sidebar-link">Update</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="page-title">Add Book/Movie</div>
+
+<div class="form-section">
+    <form method="POST" action="{{ url_for('add_book') }}">
+        <!-- Radio Button - Book / Radio Button - Movie (per Excel, default Book) -->
+        <div class="form-group">
+            <div class="radio-group">
+                <label class="radio-item">
+                    <input type="radio" name="item_type" value="Book" {% if form.get('item_type', 'Book') == 'Book' %}checked{% endif %}> Book
+                </label>
+                <label class="radio-item">
+                    <input type="radio" name="item_type" value="Movie" {% if form.get('item_type') == 'Movie' %}checked{% endif %}> Movie
+                </label>
+            </div>
+            <div class="field-note">Select one option. By default - Book. All fields required to submit the form.</div>
+        </div>
+
+        <!-- Book/Movie Name - Text Box (per Excel) -->
+        <div class="form-group">
+            <label>Book/Movie Name <span class="required">*</span></label>
+            <input type="text" name="name" class="form-control" required value="{{ form.get('name', '') }}">
+        </div>
+
+        <!-- Date of Procurement - Calendar (per Excel) -->
+        <div class="form-group">
+            <label>Date of Procurement <span class="required">*</span></label>
+            <input type="date" name="procurement_date" class="form-control" required value="{{ form.get('procurement_date', '') }}">
+        </div>
+
+        <!-- Quantity/Copies - Text Box, by default 1 (per Excel) -->
+        <div class="form-group">
+            <label>Quantity/Copies <span class="required">*</span></label>
+            <input type="number" name="quantity" class="form-control" required min="1"
+                   value="{{ form.get('quantity', '1') }}" placeholder="Default: 1">
+        </div>
+
+        <div class="btn-row">
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <a href="{{ url_for('cancel') }}" class="btn btn-cancel">Cancel</a>
+            <a href="{{ url_for('maintenance') }}" class="btn btn-secondary">Back</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

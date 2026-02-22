@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %}Update Membership – Library MS{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar">
+    <span class="sidebar-heading">Housekeeping</span>
+    <div class="sidebar-section">
+        <span class="sidebar-link top-level" style="cursor:default;">Membership</span>
+        <a href="{{ url_for('add_membership') }}" class="sidebar-link">Add</a>
+        <a href="{{ url_for('update_membership') }}" class="sidebar-link active">Update</a>
+    </div>
+    <div class="sidebar-section">
+        <span class="sidebar-link top-level" style="cursor:default;">Books/Movies</span>
+        <a href="{{ url_for('add_book') }}" class="sidebar-link">Add</a>
+        <a href="{{ url_for('update_book') }}" class="sidebar-link">Update</a>
+    </div>
+    <div class="sidebar-section">
+        <span class="sidebar-link top-level" style="cursor:default;">User Management</span>
+        <a href="{{ url_for('user_management') }}" class="sidebar-link">Add</a>
+        <a href="{{ url_for('user_management') }}" class="sidebar-link">Update</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="page-title">Update Membership</div>
+
+<!-- Step 1: Enter Membership Number -->
+<div class="form-section" style="margin-bottom:1.5rem;">
+    <form method="POST" action="{{ url_for('update_membership') }}">
+        <input type="hidden" name="action" value="fetch">
+        <!-- Membership Number - Text Box (per Excel) -->
+        <div class="form-group">
+            <label>Membership Number <span class="required">*</span></label>
+            <input type="text" name="membership_number" class="form-control"
+                   placeholder="e.g. MEM000001" required
+                   value="{{ form.get('membership_number', '') }}">
+            <div class="field-note">Membership Number is mandatory. Rest of the fields will be populated based on this.</div>
+        </div>
+        <div class="btn-row">
+            <button type="submit" class="btn btn-primary">Fetch Details</button>
+        </div>
+    </form>
+</div>
+
+{% if member %}
+<!-- Step 2: Show populated fields and update options -->
+<div class="form-section">
+    <form method="POST" action="{{ url_for('update_membership') }}">
+        <input type="hidden" name="action" value="update">
+        <input type="hidden" name="membership_number" value="{{ member['membership_id'] }}">
+
+        <!-- Start Date - Calendar (per Excel, populated from membership) -->
+        <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" class="form-control" value="{{ member['start_date'] }}" readonly>
+        </div>
+
+        <!-- End Date - Calendar (per Excel, populated from membership) -->
+        <div class="form-group">
+            <label>End Date</label>
+            <input type="date" class="form-control" value="{{ member['end_date'] }}" readonly>
+        </div>
+
+        <!-- Membership Extn - Radio Button: Six months / One Year / Two Years (per Excel) -->
+        <div class="form-group">
+            <label>Membership Extn:</label>
+            <div class="radio-group">
+                <label class="radio-item">
+                    <input type="radio" name="membership_extn" value="Six Months" checked> Six months
+                </label>
+                <label class="radio-item">
+                    <input type="radio" name="membership_extn" value="One Year"> One Year
+                </label>
+                <label class="radio-item">
+                    <input type="radio" name="membership_extn" value="Two Years"> Two Years
+                </label>
+            </div>
+            <div class="field-note">Only one Radio button to be selected. By default - six months extension selected.</div>
+        </div>
+
+        <!-- Membership Remove - Radio Button (per Excel) -->
+        <div class="form-group">
+            <label>Membership Remove</label>
+            <div class="radio-group">
+                <label class="radio-item">
+                    <input type="radio" name="membership_remove" value="yes"> Remove Membership
+                </label>
+                <label class="radio-item">
+                    <input type="radio" name="membership_remove" value="no" checked> Keep Membership
+                </label>
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a href="{{ url_for('cancel') }}" class="btn btn-cancel">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+{% endblock %}

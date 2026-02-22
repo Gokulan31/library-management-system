@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Book Availability – Library MS{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar">
+    <a href="{{ url_for('book_available') }}" class="txn-sidebar-link active">Is book available?</a>
+    <a href="{{ url_for('book_issue') }}" class="txn-sidebar-link">Issue book?</a>
+    <a href="{{ url_for('return_book') }}" class="txn-sidebar-link">Return book?</a>
+    <a href="{{ url_for('pay_fine') }}" class="txn-sidebar-link">Pay Fine?</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="page-title">Book Availability</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="flash-container">
+    {% for cat, msg in messages %}
+    <div class="flash flash-{{ cat }}">{{ msg }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+<div class="form-section">
+    <form method="POST" action="{{ url_for('book_available') }}">
+        <div class="form-group">
+            <label>Enter Book Name</label>
+            <select name="book_name" class="form-control">
+                <option value="">-- Select Book Name --</option>
+                {% for n in book_names %}
+                <option value="{{ n }}" {% if book_name == n %}selected{% endif %}>{{ n }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Enter Author</label>
+            <select name="author" class="form-control">
+                <option value="">-- Select Author --</option>
+                {% for a in authors %}
+                <option value="{{ a }}" {% if author == a %}selected{% endif %}>{{ a }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="btn-row">
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a href="{{ url_for('transactions') }}" class="btn btn-secondary">Back</a>
+        </div>
+    </form>
+</div>
+
+{% if searched %}
+<div style="margin-top:1.5rem;">
+    <h3 style="font-size:1rem; color:var(--primary); margin-bottom:0.75rem;">Search Results</h3>
+    {% if results %}
+    <!-- Search Results per Excel: Book Name | Author Name | Serial Number | Available | Select to issue the book (radio button) -->
+    <form method="GET" action="{{ url_for('book_issue') }}" id="issue-form">
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Book Name</th>
+                        <th>Author Name</th>
+                        <th>Serial Number</th>
+                        <th>Available</th>
+                        <th>Select to issue the book</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in results %}
+                    <tr>
+                        <td>{{ r['name'] }}</td>
+                        <td>{{ r['author'] }}</td>
+                        <td>{{ r['serial_no'] }}</td>
+                        <td>{{ 'Y' if r['status'] == 'Available' else 'N' }}</td>
+                        <td style="text-align:center;">
+                            {% if r['status'] == 'Available' %}
+                            <input type="radio" name="selected" value="{{ r['serial_no'] }}|{{ r['name'] }}">
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="btn-row">
+            <button type="button" class="btn btn-primary" onclick="goIssue()">Issue Selected Book</button>
+        </div>
+    </form>
+    {% else %}
+    <div class="table-wrapper">
+        <div class="table-empty">No books found matching your search.</div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function goIssue() {
+    var sel = document.querySelector('input[name="selected"]:checked');
+    if (!sel) { alert('Please select an available book to issue.'); return; }
+    var parts = sel.value.split('|');
+    window.location.href = '{{ url_for("book_issue") }}?serial=' + encodeURIComponent(parts[0]) + '&name=' + encodeURIComponent(parts[1]);
+}
+</script>
+{% endblock %}

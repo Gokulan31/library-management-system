@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}Return Book – Library MS{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar">
+    <a href="{{ url_for('book_available') }}" class="txn-sidebar-link">Is book available?</a>
+    <a href="{{ url_for('book_issue') }}" class="txn-sidebar-link">Issue book?</a>
+    <a href="{{ url_for('return_book') }}" class="txn-sidebar-link active">Return book?</a>
+    <a href="{{ url_for('pay_fine') }}" class="txn-sidebar-link">Pay Fine?</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="page-title">Return Book</div>
+
+<div class="form-section">
+    <form method="POST" action="{{ url_for('return_book') }}">
+        <!-- Enter Book Name - Drop Down (per Excel) -->
+        <div class="form-group">
+            <label>Enter Book Name <span class="required">*</span></label>
+            <select name="book_name" id="book_name" class="form-control" required>
+                <option value="">-- Select Book Name --</option>
+                {% for n in issued_books %}
+                <option value="{{ n }}" {% if form.get('book_name') == n %}selected{% endif %}>{{ n }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Enter Author - Text Area, auto-populated, non-editable (per Excel) -->
+        <div class="form-group">
+            <label>Enter Author</label>
+            <textarea name="author_display" id="author_field" class="form-control"
+                      readonly placeholder="Auto-populated on book selection" rows="2">{{ form.get('author_display', '') }}</textarea>
+            <div class="field-note">Automatically populated. Non-editable.</div>
+        </div>
+
+        <!-- Serial No - Drop Down, Mandatory (per Excel) -->
+        <div class="form-group">
+            <label>Serial No <span class="required">*</span></label>
+            <select name="serial_no" id="serial_no" class="form-control" required>
+                <option value="">-- Select Serial No --</option>
+            </select>
+            <div class="field-note">Mandatory field.</div>
+        </div>
+
+        <!-- Issue Date - Text Box, auto-populated (per Excel) -->
+        <div class="form-group">
+            <label>Issue Date</label>
+            <input type="text" id="issue_date_display" name="issue_date_display" class="form-control"
+                   readonly placeholder="Auto-populated">
+            <input type="hidden" id="issue_date_hidden" name="issue_date_hidden">
+            <div class="field-note">Automatically populated. Non-editable.</div>
+        </div>
+
+        <!-- Return Date - Calendar (per Excel) -->
+        <div class="form-group">
+            <label>Return Date <span class="required">*</span></label>
+            <input type="date" name="return_date" id="return_date" class="form-control"
+                   value="{{ form.get('return_date', '') }}" required>
+            <div class="field-note">Auto-populated to date selected while issuing. Can be edited earlier or later.</div>
+        </div>
+
+        <!-- Remarks - Text Box/area, Non Mandatory (per Excel) -->
+        <div class="form-group">
+            <label>Remarks</label>
+            <textarea name="remarks" class="form-control" placeholder="Optional remarks...">{{ form.get('remarks', '') }}</textarea>
+            <div class="field-note">Non Mandatory.</div>
+        </div>
+
+        <div class="btn-row">
+            <button type="submit" class="btn btn-primary">Confirm</button>
+            <a href="{{ url_for('cancel') }}" class="btn btn-cancel">Cancel</a>
+            <a href="{{ url_for('transactions') }}" class="btn btn-secondary">Back</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var bookNameEl = document.getElementById('book_name');
+var authorEl = document.getElementById('author_field');
+var serialEl = document.getElementById('serial_no');
+var issueDateEl = document.getElementById('issue_date_display');
+var issueDateHidden = document.getElementById('issue_date_hidden');
+var returnDateEl = document.getElementById('return_date');
+
+bookNameEl.addEventListener('change', function() {
+    var name = this.value;
+    authorEl.value = '';
+    serialEl.innerHTML = '<option value="">-- Select Serial No --</option>';
+    issueDateEl.value = '';
+    issueDateHidden.value = '';
+    returnDateEl.value = '';
+    if (!name) return;
+
+    fetch('/api/issued-book-details?name=' + encodeURIComponent(name))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.length > 0) {
+                var d = data[0];
+                authorEl.value = d.author || '';
+                issueDateEl.value = d.issue_date || '';
+                issueDateHidden.value = d.issue_date || '';
+                returnDateEl.value = d.return_date || '';
+                data.forEach(function(item) {
+                    var opt = document.createElement('option');
+                    opt.value = item.serial_no;
+                    opt.textContent = item.serial_no;
+                    serialEl.appendChild(opt);
+                });
+            }
+        });
+});
+</script>
+{% endblock %}

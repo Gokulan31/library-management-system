@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Pay Fine – Library MS{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar">
+    <a href="{{ url_for('book_available') }}" class="txn-sidebar-link">Is book available?</a>
+    <a href="{{ url_for('book_issue') }}" class="txn-sidebar-link">Issue book?</a>
+    <a href="{{ url_for('return_book') }}" class="txn-sidebar-link">Return book?</a>
+    <a href="{{ url_for('pay_fine') }}" class="txn-sidebar-link active">Pay Fine?</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="page-title">Pay Fine</div>
+
+{% if issue %}
+<div class="form-section" style="max-width:580px;">
+    <form method="POST" action="{{ url_for('pay_fine') }}">
+        <input type="hidden" name="issue_id" value="{{ issue['id'] }}">
+
+        <!-- Enter Book Name - Text Box (per Excel, all fields populated) -->
+        <div class="form-group">
+            <label>Enter Book Name</label>
+            <input type="text" class="form-control" value="{{ issue['product_name'] }}" readonly>
+        </div>
+
+        <!-- Enter Author - Text Box (per Excel) -->
+        <div class="form-group">
+            <label>Enter Author</label>
+            <input type="text" class="form-control" value="{{ issue['author'] or '' }}" readonly>
+        </div>
+
+        <!-- Serial No - Text Box (per Excel) -->
+        <div class="form-group">
+            <label>Serial No</label>
+            <input type="text" class="form-control" value="{{ issue['serial_no'] }}" readonly>
+        </div>
+
+        <!-- Issue Date - Calendar (per Excel) -->
+        <div class="form-group">
+            <label>Issue Date</label>
+            <input type="date" class="form-control" value="{{ issue['issue_date'] }}" readonly>
+        </div>
+
+        <!-- Return Date - Calendar (per Excel) -->
+        <div class="form-group">
+            <label>Return Date</label>
+            <input type="date" class="form-control" value="{{ issue['return_date'] }}" readonly>
+        </div>
+
+        <!-- Actual Return Date - Calendar (per Excel) -->
+        <div class="form-group">
+            <label>Actual Return Date</label>
+            <input type="date" class="form-control" value="{{ issue['actual_return_date'] or '' }}" readonly>
+        </div>
+
+        <!-- Fine Calculated - Text Box, by default zero (per Excel) -->
+        <div class="form-group">
+            <label>Fine Calculated</label>
+            <input type="text" class="form-control" value="{{ issue['fine_calculated'] if issue['fine_calculated'] else 0 }}" readonly>
+            <div class="field-note">By default zero.</div>
+        </div>
+
+        <!-- Fine Paid - Checkbox, by default unchecked (per Excel) -->
+        <div class="form-group">
+            <label>Fine Paid</label>
+            <div class="check-group">
+                <label class="check-item">
+                    <input type="checkbox" name="fine_paid"> Fine Paid
+                </label>
+            </div>
+            <div class="field-note">By default unchecked. Must be checked if fine is calculated before confirming return.</div>
+        </div>
+
+        <!-- Remarks - text area, Non Mandatory (per Excel) -->
+        <div class="form-group">
+            <label>Remarks</label>
+            <textarea name="remarks" class="form-control" placeholder="Optional remarks..."></textarea>
+            <div class="field-note">Non Mandatory.</div>
+        </div>
+
+        <div class="btn-row">
+            <button type="submit" class="btn btn-primary">Confirm</button>
+            <a href="{{ url_for('cancel') }}" class="btn btn-cancel">Cancel</a>
+        </div>
+    </form>
+</div>
+
+{% else %}
+<div class="form-section">
+    <p style="color:var(--text-muted);">No issue record found. Please initiate a return from the <a href="{{ url_for('return_book') }}">Return Book</a> page.</p>
+</div>
+{% endif %}
+{% endblock %}

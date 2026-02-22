@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Reports – Library MS{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar">
+    <span class="sidebar-heading">Available Reports</span>
+    <a href="{{ url_for('report_books') }}" class="sidebar-link {% if request.endpoint == 'report_books' %}active{% endif %}">Master List of Books</a>
+    <a href="{{ url_for('report_movies') }}" class="sidebar-link {% if request.endpoint == 'report_movies' %}active{% endif %}">Master List of Movies</a>
+    <a href="{{ url_for('report_memberships') }}" class="sidebar-link {% if request.endpoint == 'report_memberships' %}active{% endif %}">Master List of Memberships</a>
+    <a href="{{ url_for('report_active_issues') }}" class="sidebar-link {% if request.endpoint == 'report_active_issues' %}active{% endif %}">Active Issues</a>
+    <a href="{{ url_for('report_overdue') }}" class="sidebar-link {% if request.endpoint == 'report_overdue' %}active{% endif %}">Overdue returns</a>
+    <a href="{{ url_for('report_issue_requests') }}" class="sidebar-link {% if request.endpoint == 'report_issue_requests' %}active{% endif %}">Pending Issue Requests</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="page-title">Reports</div>
+<p style="color:var(--text-muted);">Select a report from the sidebar.</p>
+
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Book Issue – Library MS{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar">
+    <a href="{{ url_for('book_available') }}" class="txn-sidebar-link">Is book available?</a>
+    <a href="{{ url_for('book_issue') }}" class="txn-sidebar-link active">Issue book?</a>
+    <a href="{{ url_for('return_book') }}" class="txn-sidebar-link">Return book?</a>
+    <a href="{{ url_for('pay_fine') }}" class="txn-sidebar-link">Pay Fine?</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="page-title">Book Issue</div>
+
+<div class="form-section">
+    <form method="POST" action="{{ url_for('book_issue') }}" id="issue-form">
+        <!-- Enter Book Name - Drop Down (per Excel) -->
+        <div class="form-group">
+            <label>Enter Book Name <span class="required">*</span></label>
+            <select name="book_name" id="book_name" class="form-control" required>
+                <option value="">-- Select Book Name --</option>
+                {% for n in book_names %}
+                <option value="{{ n }}" {% if form.get('book_name') == n or request.args.get('name') == n %}selected{% endif %}>{{ n }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Enter Author - Text box, auto-populated, non-editable (per Excel) -->
+        <div class="form-group">
+            <label>Enter Author</label>
+            <input type="text" name="author" id="author_field" class="form-control"
+                   value="{{ form.get('author', '') }}"
+                   readonly placeholder="Auto-populated on book selection">
+            <div class="field-note">Automatically populated. Non-editable.</div>
+        </div>
+
+        <!-- Issue Date - Calendar (per Excel) -->
+        <div class="form-group">
+            <label>Issue Date <span class="required">*</span></label>
+            <input type="date" name="issue_date" id="issue_date" class="form-control"
+                   value="{{ form.get('issue_date', '') }}" required>
+            <div class="field-note">Cannot be lesser than today.</div>
+        </div>
+
+        <!-- Return Date - Calendar (per Excel) -->
+        <div class="form-group">
+            <label>Return Date <span class="required">*</span></label>
+            <input type="date" name="return_date" id="return_date" class="form-control"
+                   value="{{ form.get('return_date', '') }}" required>
+            <div class="field-note">Auto-set to 15 days ahead. Can be edited to an earlier date but not greater than 15 days.</div>
+        </div>
+
+        <!-- Remarks - Text area/Text box, Non Mandatory (per Excel) -->
+        <div class="form-group">
+            <label>Remarks</label>
+            <textarea name="remarks" class="form-control" placeholder="Optional remarks...">{{ form.get('remarks', '') }}</textarea>
+            <div class="field-note">Non Mandatory.</div>
+        </div>
+
+        <div class="btn-row">
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <a href="{{ url_for('cancel') }}" class="btn btn-cancel">Cancel</a>
+            <a href="{{ url_for('transactions') }}" class="btn btn-secondary">Back</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var today = new Date().toISOString().split('T')[0];
+var issueDateEl = document.getElementById('issue_date');
+var returnDateEl = document.getElementById('return_date');
+var bookNameEl = document.getElementById('book_name');
+var authorEl = document.getElementById('author_field');
+
+// Set today's date if not already set
+if (!issueDateEl.value) { issueDateEl.value = today; }
+issueDateEl.min = today;
+
+function updateReturnDate() {
+    var issueVal = issueDateEl.value;
+    if (!issueVal) return;
+    var issueDate = new Date(issueVal);
+    var maxReturn = new Date(issueDate);
+    maxReturn.setDate(maxReturn.getDate() + 15);
+    var maxStr = maxReturn.toISOString().split('T')[0];
+    returnDateEl.max = maxStr;
+    returnDateEl.min = issueVal;
+    // Auto-populate 15 days ahead
+    if (!returnDateEl.value || returnDateEl.dataset.autoSet === 'true') {
+        returnDateEl.value = maxStr;
+        returnDateEl.dataset.autoSet = 'true';
+    }
+}
+updateReturnDate();
+issueDateEl.addEventListener('change', updateReturnDate);
+returnDateEl.addEventListener('change', function() {
+    returnDateEl.dataset.autoSet = 'false';
+});
+
+// Auto-populate author from book name selection
+bookNameEl.addEventListener('change', function() {
+    var name = this.value;
+    if (!name) { authorEl.value = ''; return; }
+    fetch('/api/book-author?name=' + encodeURIComponent(name))
+        .then(function(r) { return r.json(); })
+        .then(function(data) { authorEl.value = data.author || ''; });
+});
+
+// If coming from search results with pre-selected book
+var urlParams = new URLSearchParams(window.location.search);
+var preName = urlParams.get('name');
+if (preName) {
+    bookNameEl.value = preName;
+    bookNameEl.dispatchEvent(new Event('change'));
+}
+</script>
+{% endblock %}

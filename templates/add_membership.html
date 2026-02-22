@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}Add Membership – Library MS{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar">
+    <span class="sidebar-heading">Housekeeping</span>
+    <div class="sidebar-section">
+        <span class="sidebar-link top-level" style="cursor:default;">Membership</span>
+        <a href="{{ url_for('add_membership') }}" class="sidebar-link active">Add</a>
+        <a href="{{ url_for('update_membership') }}" class="sidebar-link">Update</a>
+    </div>
+    <div class="sidebar-section">
+        <span class="sidebar-link top-level" style="cursor:default;">Books/Movies</span>
+        <a href="{{ url_for('add_book') }}" class="sidebar-link">Add</a>
+        <a href="{{ url_for('update_book') }}" class="sidebar-link">Update</a>
+    </div>
+    <div class="sidebar-section">
+        <span class="sidebar-link top-level" style="cursor:default;">User Management</span>
+        <a href="{{ url_for('user_management') }}" class="sidebar-link">Add</a>
+        <a href="{{ url_for('user_management') }}" class="sidebar-link">Update</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="page-title">Add Membership</div>
+
+<div class="form-section">
+    <form method="POST" action="{{ url_for('add_membership') }}">
+        <!-- First Name - Text Box (per Excel) -->
+        <div class="form-group">
+            <label>First Name <span class="required">*</span></label>
+            <input type="text" name="first_name" class="form-control" required value="{{ form.get('first_name', '') }}">
+        </div>
+
+        <!-- Last Name - Text Box (per Excel) -->
+        <div class="form-group">
+            <label>Last Name <span class="required">*</span></label>
+            <input type="text" name="last_name" class="form-control" required value="{{ form.get('last_name', '') }}">
+        </div>
+
+        <!-- Contact Name - Text Box (per Excel: "Contact Name") -->
+        <div class="form-group">
+            <label>Contact Name <span class="required">*</span></label>
+            <input type="text" name="contact_name" class="form-control" required value="{{ form.get('contact_name', '') }}">
+        </div>
+
+        <!-- Contact Address - Text Box (per Excel) -->
+        <div class="form-group">
+            <label>Contact Address <span class="required">*</span></label>
+            <input type="text" name="contact_address" class="form-control" required value="{{ form.get('contact_address', '') }}">
+        </div>
+
+        <!-- Aadhaar Card No - Text Box (per Excel: "Adadhar Card No") -->
+        <div class="form-group">
+            <label>Aadhaar Card No <span class="required">*</span></label>
+            <input type="text" name="aadhar_no" class="form-control" required value="{{ form.get('aadhar_no', '') }}">
+        </div>
+
+        <!-- Start Date - Calendar (per Excel) -->
+        <div class="form-group">
+            <label>Start Date <span class="required">*</span></label>
+            <input type="date" name="start_date" class="form-control" required value="{{ form.get('start_date', '') }}">
+        </div>
+
+        <!-- End Date - Calendar (per Excel) -->
+        <div class="form-group">
+            <label>End Date <span class="required">*</span></label>
+            <input type="date" name="end_date" id="end_date" class="form-control" required value="{{ form.get('end_date', '') }}">
+        </div>
+
+        <!-- Membership - Radio Button: Six Months / One Year / Two Years (per Excel) -->
+        <div class="form-group">
+            <label>Membership <span class="required">*</span></label>
+            <div class="radio-group">
+                <label class="radio-item">
+                    <input type="radio" name="membership_type" value="Six Months" {% if form.get('membership_type', 'Six Months') == 'Six Months' %}checked{% endif %} onchange="updateEndDate(this.value)"> Six months
+                </label>
+                <label class="radio-item">
+                    <input type="radio" name="membership_type" value="One Year" {% if form.get('membership_type') == 'One Year' %}checked{% endif %} onchange="updateEndDate(this.value)"> One Year
+                </label>
+                <label class="radio-item">
+                    <input type="radio" name="membership_type" value="Two Years" {% if form.get('membership_type') == 'Two Years' %}checked{% endif %} onchange="updateEndDate(this.value)"> Two Years
+                </label>
+            </div>
+            <div class="field-note">Only one radio button to be selected. By default - 6 months is selected. All fields required.</div>
+        </div>
+
+        <div class="btn-row">
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <a href="{{ url_for('cancel') }}" class="btn btn-cancel">Cancel</a>
+            <a href="{{ url_for('maintenance') }}" class="btn btn-secondary">Back</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var startDateEl = document.querySelector('input[name="start_date"]');
+var endDateEl = document.getElementById('end_date');
+
+function updateEndDate(membershipType) {
+    var startVal = startDateEl.value;
+    if (!startVal) return;
+    var start = new Date(startVal);
+    var end = new Date(start);
+    if (membershipType === 'Six Months') {
+        end.setMonth(end.getMonth() + 6);
+    } else if (membershipType === 'One Year') {
+        end.setFullYear(end.getFullYear() + 1);
+    } else if (membershipType === 'Two Years') {
+        end.setFullYear(end.getFullYear() + 2);
+    }
+    endDateEl.value = end.toISOString().split('T')[0];
+}
+
+startDateEl.addEventListener('change', function() {
+    var sel = document.querySelector('input[name="membership_type"]:checked');
+    if (sel) updateEndDate(sel.value);
+});
+</script>
+{% endblock %}

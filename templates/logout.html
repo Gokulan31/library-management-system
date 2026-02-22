@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logged Out – Library MS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="status-page">
+    <div class="status-box">
+        <span class="status-icon">👤</span>
+        <!-- Exact text from Excel -->
+        <h2>You have successfully logged out.</h2>
+        <div class="btn-row" style="justify-content:center;">
+            <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+        </div>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

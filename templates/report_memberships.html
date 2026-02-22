@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Master List of Memberships – Library MS{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar">
+    <span class="sidebar-heading">Available Reports</span>
+    <a href="{{ url_for('report_books') }}" class="sidebar-link">Master List of Books</a>
+    <a href="{{ url_for('report_movies') }}" class="sidebar-link">Master List of Movies</a>
+    <a href="{{ url_for('report_memberships') }}" class="sidebar-link active">Master List of Memberships</a>
+    <a href="{{ url_for('report_active_issues') }}" class="sidebar-link">Active Issues</a>
+    <a href="{{ url_for('report_overdue') }}" class="sidebar-link">Overdue returns</a>
+    <a href="{{ url_for('report_issue_requests') }}" class="sidebar-link">Pending Issue Requests</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="page-title">List of Active Memberships</div>
+
+{% if members %}
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>Membership Id</th>
+                <th>Name of Member</th>
+                <th>Contact Number</th>
+                <th>Contact Address</th>
+                <th>Aadhar Card No</th>
+                <th>Start Date of Membership</th>
+                <th>End Date of Membership</th>
+                <th>Status (Active/Inactive)</th>
+                <th>Amount Pending (Fine)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in members %}
+            <tr>
+                <td>{{ m['membership_id'] }}</td>
+                <td>{{ m['first_name'] }} {{ m['last_name'] }}</td>
+                <td>{{ m['contact_name'] }}</td>
+                <td>{{ m['contact_address'] }}</td>
+                <td>{{ m['aadhar_no'] }}</td>
+                <td>{{ m['start_date'] }}</td>
+                <td>{{ m['end_date'] }}</td>
+                <td><span class="badge badge-{{ m['status']|lower }}">{{ m['status'] }}</span></td>
+                <td>{{ m['amount_pending'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="table-wrapper"><div class="table-empty">No memberships found.</div></div>
+{% endif %}
+
+{% endblock %}
